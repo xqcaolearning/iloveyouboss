@@ -32,4 +32,18 @@ public class ProfileTest {
         profile.matches(emptyCriteria);
         assertThat(profile.score(), is(0));
     }
+
+    @Test
+    public void should_return_false_when_give_not_match_criteria() {
+        Question question = new BooleanQuestion(1, "question");
+        Answer oneAnswer = new Answer(question, 1);
+        Answer anotherAnswer = new Answer(question, 2);
+        Criterion criterion = new Criterion(oneAnswer, Weight.Important);
+        Criteria criteria = new Criteria();
+        criteria.add(criterion);
+        profile.add(anotherAnswer);
+
+        boolean result = profile.matches(criteria);
+        assertThat(result, is(false));
+    }
 }
