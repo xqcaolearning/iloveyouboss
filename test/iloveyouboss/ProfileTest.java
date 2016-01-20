@@ -45,5 +45,6 @@ public class ProfileTest {
 
         boolean result = profile.matches(criteria);
         assertThat(result, is(false));
+        assertThat(profile.score(), is(0));
     }
 }
