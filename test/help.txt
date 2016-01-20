@@ -1,0 +1,32 @@
+1、参数criteria为空，return false
+2、criterion.getAnswer()为空，抛异常
+3、criterion.getAnswer().getQuestionText()为空，抛异常
+4、criterion.getAnswer().getQuestionText()不在answers集合中,answer.match()会抛异常
+
+
+
+异常逻辑
+1、如果answers中没有包含某一个criterion.getAnswer().getQuestionText(). 那么就会抛出异常。但是score 可能会被修改。
+2、如果集合为空集，那么返回false，Score不变。
+
+
+正常逻辑。
+1、部分match。
+	1.1、not match 的。
+		1.1.1、满足 criterion.getWeight() == Weight.MustMatch。一定返回false。
+		1.1.2、不满足 criterion.getWeight() == Weight.MustMatch。那么一定返回true。
+	1.2、只要有match 的。Score 就会增加。
+
+2、如果都match。
+	2.1、一定返回true。
+	2.2、Score 会加上所有的Weight value。
+
+3、如果都不match。
+	3.1、一定返回false。
+
+
+1、任意一个 not match && criterion.getWeight() == Weight.MustMatch，返回false
+2、所有criterion 满足 criterion.getWeight()不是Weight.DontCare && 两个answer不match !answer.match(criterion.getAnswer()); 返回false
+3、任意criterion 满足criterion.getWeight() == Weight.DontCare， 返回true
+
+4、任意criterion 满足answer.match(criterion.getAnswer()，返回true
