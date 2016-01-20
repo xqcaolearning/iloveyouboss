@@ -107,4 +107,17 @@ public class ProfileTest {
         assertThat(result, is(false));
         assertThat(profile.score(), is(1000));
     }
+
+    @Test
+    public void should_return_true_when_give_one_match_and_not_match_criteria() {
+        criteria.add(matchCriterion);
+        criteria.add(notMatchCriterion1);
+
+        profile.add(matchRightAnswer);
+        profile.add(notMatchWrongAnswer1);
+
+        boolean result = profile.matches(criteria);
+        assertThat(result, is(true));
+        assertThat(profile.score(), is(1000));
+    }
 }
