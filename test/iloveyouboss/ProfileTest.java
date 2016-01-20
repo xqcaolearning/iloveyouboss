@@ -10,9 +10,6 @@ public class ProfileTest {
 
     private Profile profile;
     private Criteria criteria, emptyCriteria;
-    private Criterion criterion;
-    private Answer answerRight, answerWrong;
-    private Question question;
     private Answer mustMatchRightAnswer;
     private Answer mustMatchWrongAnswer;
     private Answer matchRightAnswer;
@@ -21,21 +18,17 @@ public class ProfileTest {
     private Answer notMatchWrongAnswer1;
     private Answer notMatchRightAnswer2;
     private Answer notMatchWrongAnswer2;
-
-    @Before
-    public void init() {
-        question = new BooleanQuestion(1, "question");
-        answerRight = new Answer(question, 1);
-        answerWrong = new Answer(question, 2);
-        criterion = new Criterion(answerRight, Weight.Important);
-        emptyCriteria = new Criteria();
-        criteria = new Criteria();
-        criteria.add(criterion);
-        profile = new Profile("profile");
-    }
+    private Criterion matchCriterion;
+    private Criterion notMatchCriterion1;
+    private Criterion notMatchCriterion2;
+    private Criterion mustMatchCriterion;
 
     @Before
     public void init_common_variables() {
+        emptyCriteria = new Criteria();
+        criteria = new Criteria();
+        profile = new Profile("profile");
+
         BooleanQuestion matchQuestion = new BooleanQuestion(1, "match question");
         matchRightAnswer = new Answer(matchQuestion, 1);
         matchWrongAnswer = new Answer(matchQuestion, 2);
@@ -47,6 +40,16 @@ public class ProfileTest {
         BooleanQuestion notMatchQuestion2 = new BooleanQuestion(1, "not match question");
         notMatchRightAnswer2 = new Answer(notMatchQuestion2, 1);
         notMatchWrongAnswer2 = new Answer(notMatchQuestion2, 2);
+
+        BooleanQuestion mustMatchQuestion = new BooleanQuestion(1, "must match question");
+        mustMatchRightAnswer = new Answer(mustMatchQuestion, 1);
+        mustMatchWrongAnswer = new Answer(mustMatchQuestion, 2);
+
+        matchCriterion = new Criterion(matchRightAnswer, Weight.Important);
+        notMatchCriterion1 = new Criterion(notMatchRightAnswer1, Weight.Important);
+        notMatchCriterion2 = new Criterion(notMatchRightAnswer2, Weight.Important);
+
+        mustMatchCriterion = new Criterion(mustMatchRightAnswer, Weight.MustMatch);
     }
 
     @Test
@@ -63,7 +66,8 @@ public class ProfileTest {
 
     @Test
     public void should_return_false_when_give_not_match_criteria() {
-        profile.add(answerWrong);
+        criteria.add(notMatchCriterion1);
+        profile.add(notMatchWrongAnswer1);
         boolean result = profile.matches(criteria);
         assertThat(result, is(false));
         assertThat(profile.score(), is(0));
@@ -71,7 +75,8 @@ public class ProfileTest {
 
     @Test
     public void should_return_true_when_give_all_answers_match_with_criteria() {
-        profile.add(answerRight);
+        criteria.add(matchCriterion);
+        profile.add(matchRightAnswer);
         boolean result = profile.matches(criteria);
         assertThat(result, is(true));
         assertThat(profile.score(), is(1000));
@@ -79,36 +84,26 @@ public class ProfileTest {
 
     @Test
     public void should_return_false_when_give_must_match_and_not_match_criteria() {
-        Criterion criterion2 = new Criterion(notMatchRightAnswer1, Weight.MustMatch);
-        Criterion criterion1 = new Criterion(notMatchRightAnswer2, Weight.Important);
+        criteria.add(mustMatchCriterion);
+        criteria.add(notMatchCriterion1);
 
-        Criteria criteria1 = new Criteria();
-        criteria1.add(criterion1);
-        criteria1.add(criterion2);
-
-        profile = new Profile("profile");
+        profile.add(mustMatchWrongAnswer);
         profile.add(notMatchWrongAnswer1);
-        profile.add(notMatchWrongAnswer2);
 
-        boolean result = profile.matches(criteria1);
+        boolean result = profile.matches(criteria);
         assertThat(result, is(false));
         assertThat(profile.score(), is(0));
     }
 
     @Test
     public void should_return_false_when_give_must_match_and_one_match_criteria() {
-        Criterion mustMatchCriterion = new Criterion(notMatchRightAnswer1, Weight.MustMatch);
-        Criterion matchCriterion = new Criterion(matchRightAnswer, Weight.Important);
+        criteria.add(mustMatchCriterion);
+        criteria.add(matchCriterion);
 
-        Criteria criteria1 = new Criteria();
-        criteria1.add(matchCriterion);
-        criteria1.add(mustMatchCriterion);
-
-        profile = new Profile("profile");
-        profile.add(notMatchWrongAnswer1);
+        profile.add(mustMatchWrongAnswer);
         profile.add(matchRightAnswer);
 
-        boolean result = profile.matches(criteria1);
+        boolean result = profile.matches(criteria);
         assertThat(result, is(false));
         assertThat(profile.score(), is(1000));
     }
